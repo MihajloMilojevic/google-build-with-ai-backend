@@ -1,0 +1,31 @@
+{
+  "name": "eestec-smart-thermostat-backend",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "keywords": [],
+  "author": "Mihajlo Milojevic, Sara Stojkov, Aleksa Dejanovic",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "express": "^4.21.2",
+    "express-async-errors": "^3.1.1",
+    "express-ws": "^5.0.2",
+    "helmet": "^8.1.0",
+    "http-status-codes": "^2.3.0",
+    "iron-session": "^8.0.4",
+    "serverless-mysql": "^2.1.0",
+    "uuid": "^11.1.0",
+    "xss-clean": "^0.1.4"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}
