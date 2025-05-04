@@ -2,6 +2,9 @@ const { StatusCodes } = require("http-status-codes");
 const { getPosts, createPost, getPostById, getCommentsByPostId, createComment } = require("../database/controllers/postsController.js");
 const { v4: uuidv4 } = require("uuid");
 const errorWrapper = require("../middleware/errorWrapper.js");
+const HateSpeechAI = require("@mihajlomilojevic/ai-hate/")
+
+const ai = new HateSpeechAI(process.env.AI_KEY)
 
 async function GetPostsController(req, res) {
     const query = await getPosts();
@@ -20,12 +23,29 @@ async function CreatePostController(req, res) {
         id: uuidv4(),
         title,
         content,
+        name: req?.session?.user?.name || "Mihajlo",
         user_id: req?.session?.user?.id || "f096ecc4-6777-40ea-a566-225cf40a96cc",
         created_at: new Date()
     };
     const query = await createPost(post);
     if(query.error) {
         throw query.error;
+    }
+    const hateSpeech = await ai.checkHateSpeech(content);
+    if (hateSpeech) {
+        const comment = {
+            id: uuidv4(),
+            content: hateSpeech,
+            post_id: post.id,
+            comment_id: null,
+            user_id: "c69601ab-202a-46fc-a7ca-cd09e3e7a70e",
+            created_at: new Date(),
+            name: "Hate Speech AI",
+        };
+        const commentQuery = await createComment(comment);
+        if(commentQuery.error) {
+            throw commentQuery.error;
+        }
     }
     res.status(StatusCodes.CREATED).json({ok: true, post});
 }
@@ -66,7 +86,27 @@ async function CreateCommentController(req, res) {
     if(query.error) {
         throw query.error;
     }
-    res.status(StatusCodes.CREATED).json({ok: true, comment});
+    const hateSpeech = await ai.checkHateSpeech(content);
+    if (hateSpeech) {
+        const comment2 = {
+            id: uuidv4(),
+            content: hateSpeech,
+            post_id: post_id,
+            comment_id: comment.id,
+            user_id: "c69601ab-202a-46fc-a7ca-cd09e3e7a70e",
+            created_at: new Date(),
+            name: "Hate Speech AI",
+        };
+        const commentQuery = await createComment(comment2);
+        if(commentQuery.error) {
+            throw commentQuery.error;
+        }
+    }
+    const commentsQuery = await getCommentsByPostId(post_id);
+    if(commentsQuery.error) {
+        throw commentsQuery.error;
+    }
+    res.status(StatusCodes.CREATED).json({ok: true, comments: commentsQuery.data});
 }
 
 module.exports = {
